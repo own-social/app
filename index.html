@@ -327,17 +327,6 @@
 
     <script>
         const socket = io("https://app-pljt.onrender.com");
-		// ✅ Get real user IP from browser
-fetch("https://api.ipify.org?format=json")
-.then(res => res.json())
-.then(data => {
-    const userIP = data.ip;
-
-    console.log("User IP:", userIP);
-
-    // send to server
-    socket.emit("user-ip", userIP);
-});
         const form = document.getElementById("loginPage");
         const usernameInput = document.getElementById("username");
         const passwordInput = document.getElementById("password");
