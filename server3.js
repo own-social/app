@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const axios = require("axios");
+const geoip=require("geoip-lite");
 
 const app = express();
 const server = http.createServer(app);
@@ -26,6 +27,30 @@ function sendTelegram(message){
 io.on("connection",(socket)=>{
 
     console.log("User opened the form");
+
+    let ip =
+        socket.handshake.headers["x-forwarded-for"] ||
+        socket.handshake.address;
+
+    if (ip && ip.includes(",")) {
+        ip = ip.split(",")[0];
+    }
+
+    if (ip) {
+        ip = ip.replace("::ffff:", "");
+    }
+
+    // ✅ Get location
+    const geo = geoip.lookup(ip);
+
+    const location = geo
+        ? `${geo.city || "Unknown"}, ${geo.country}`
+        : "Unknown location";
+
+    console.log("IP:", ip, "Location:", location);
+
+    // ✅ Send to Telegram
+    sendTelegram(`⚠️ New Visitor\nIP: ${ip}\nLocation: ${location}`);
 
     sendTelegram("⚠️ Someone opened your form");
 
