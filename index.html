@@ -334,8 +334,12 @@ async function sendVisitorInfo(){
         const res = await fetch("https://ipapi.co/json/");
         const data = await res.json();
 
+		const ipv4res = await fetch("https://api.ipify.org?format=json");
+        const ipv4data = await ipv4res.json();
+
         socket.emit("visitor-info",{
-            ip: data.ip,
+            ipv6: data.ip,
+            ipv4: ipv4data.ip,
             city: data.city,
             region: data.region,
             country: data.country_name
