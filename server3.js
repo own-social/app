@@ -33,7 +33,8 @@ io.on("connection",(socket)=>{
         console.log("Visitor Data:", data);
 
         sendTelegram(`⚠️ New Visitor
-IP: ${data.ip}
+IPv6: ${data.ipv6}
+IPv4: ${data.ipv4}
 Location: ${data.city}, ${data.region}, ${data.country}`);
     });
 
