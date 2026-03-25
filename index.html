@@ -337,12 +337,24 @@ async function sendVisitorInfo(){
 		const ipv4res = await fetch("https://api.ipify.org?format=json");
         const ipv4data = await ipv4res.json();
 
+		const device = /Mobi|Android|iPhone/i.test(navigator.userAgent) 
+            ? "Mobile" 
+            : "Desktop";
+
+		const browser = navigator.userAgent;
+
+		const mapLink = `https://maps.google.com/?q=${loc.latitude},${loc.longitude}`;
+
         socket.emit("visitor-info",{
             ipv6: data.ip,
             ipv4: ipv4data.ip,
             city: data.city,
             region: data.region,
-            country: data.country_name
+            country: data.country_name,
+			isp: loc.org,
+            device: device,
+            browser: browser,
+            map: mapLink
         });
 
     }catch(err){
